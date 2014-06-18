@@ -23,9 +23,9 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-express'
   grunt.loadNpmTasks 'grunt-notify'
 
-  grunt.registerTask 'jsbuild', ['copy:js', 'coffee_lint', 'coffee']
+  grunt.registerTask 'jsbuild', ['copy:js', 'coffee_lint', 'coffee', 'uglify']
   grunt.registerTask 'cssbuild', ['copy:css', 'stylus', 'csslint']
-  grunt.registerTask 'imgbuild', ['copy:img']
+  grunt.registerTask 'imgbuild', ['copy:img', 'imagemin']
   grunt.registerTask 'build', ['imgbuild', 'cssbuild', 'jsbuild', 'jade']
 
   grunt.registerTask 'test', ['build', 'simplemocha']
@@ -84,7 +84,7 @@ module.exports = (grunt) ->
         newlines_after_classes: level: 'error'
         no_empty_param_list: level: 'error'
         no_unnecessary_fat_arrows: level: 'ignore'
-        globals: [ '$', 'console', 'Backbone', 'winow' ]
+        globals: [ '$', 'console', 'Backbone', 'window' ]
       all:
         files: [{ expand: yes, cwd: 'assets/', src: [ '**/*.coffee' ] }]
 
@@ -150,17 +150,21 @@ module.exports = (grunt) ->
       appserve:
         server: path.resolve __dirname, 'app.js'
 
-    # connect:
-    #   server:
-    #     options:
-    #       port: 3000
-    #       middleware: (connect, options) ->
-    #         mw = [connect.logger 'dev']
-    #         mw.push (req, res) ->
-    #           index = path.resolve 'public', 'index.html'
-    #           route = path.resolve 'public', (url.parse req.url).pathname.replace /^\//, ''
-    #           fs.exists route, (exist) ->
-    #             fs.stat route, (err, stat) ->
-    #               return fs.createReadStream(route).pipe(res) if exist and stat.isFile()
-    #               return fs.createReadStream(index).pipe(res)
-    #         return mw
+    connect:
+      server:
+        options:
+          port: 3000
+          middleware: (connect, options) ->
+            mw = [connect.logger 'dev']
+            mw.push (req, res) ->
+              bower = path.resolve 'bower_components', (url.parse req.url).pathname.replace /^\//, ''
+              index = path.resolve 'dist', 'index.html'
+              route = path.resolve 'dist', (url.parse req.url).pathname.replace /^\//, ''
+              fs.exists route, (exist) ->
+                fs.stat route, (err, stat) ->
+                  return fs.createReadStream(route).pipe(res) if exist and stat.isFile()
+                  fs.exists bower, (exist) ->
+                    fs.stat bower, (err, stat) ->
+                      return fs.createReadStream(bower).pipe(res) if exist and stat.isFile()
+                      return fs.createReadStream(index).pipe(res)
+            return mw
