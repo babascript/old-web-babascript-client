@@ -43,16 +43,17 @@ require.config
     client: './client'
     app: './app'
     model: './model'
-    # views: './views'
+    views: './views'
 
 require [
   'app'
   'router'
   'controller'
-  # 'views'
+  'views'
   'backbone'
   'bootstrap'
 ], (App, Router, Controller, Views, Backbone) ->
+  console.log App
   App.router = new Router
     controller: new Controller()
 

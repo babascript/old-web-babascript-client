@@ -8,6 +8,7 @@ define [
   'marionette'
 ], (require, App, Model, Backbone, Marionette) ->
   App = {}
+  console.log Backbone.Marionette
   class BaseView extends Marionette.ItemView
     tagName: "div"
 
@@ -187,7 +188,6 @@ define [
         else
           NormalView
       @returnview.close()
-      console.log model
       @returnview.show new viewClass {model: model}
 
   class NormalView extends BaseView
