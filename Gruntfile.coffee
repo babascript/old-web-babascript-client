@@ -15,20 +15,22 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-contrib-jade'
   grunt.loadNpmTasks 'grunt-contrib-csslint'
   grunt.loadNpmTasks 'grunt-contrib-uglify'
-  grunt.loadNpmTasks 'grunt-contrib-imagemin'
+  # grunt.loadNpmTasks 'grunt-contrib-imagemin'
   grunt.loadNpmTasks 'grunt-contrib-connect'
   grunt.loadNpmTasks 'grunt-contrib-watch'
   grunt.loadNpmTasks 'grunt-coffee-lint'
   grunt.loadNpmTasks 'grunt-simple-mocha'
+  grunt.loadNpmTasks 'grunt-express'
   grunt.loadNpmTasks 'grunt-notify'
 
-  grunt.registerTask 'jsbuild', ['copy:js', 'coffee_lint', 'coffee', 'uglify']
+  grunt.registerTask 'jsbuild', ['copy:js', 'coffee_lint', 'coffee']
   grunt.registerTask 'cssbuild', ['copy:css', 'stylus', 'csslint']
-  grunt.registerTask 'imgbuild', ['copy:img', 'imagemin']
+  grunt.registerTask 'imgbuild', ['copy:img']
   grunt.registerTask 'build', ['imgbuild', 'cssbuild', 'jsbuild', 'jade']
 
   grunt.registerTask 'test', ['build', 'simplemocha']
   grunt.registerTask 'default', ['build', 'connect', 'watch']
+  # grunt.registerTask 'appserve', ['build', 'express', 'watch']
 
   fs = require 'fs'
   url = require 'url'
@@ -82,7 +84,7 @@ module.exports = (grunt) ->
         newlines_after_classes: level: 'error'
         no_empty_param_list: level: 'error'
         no_unnecessary_fat_arrows: level: 'ignore'
-        globals: [ '$', 'console', 'Backbone' ]
+        globals: [ '$', 'console', 'Backbone', 'winow' ]
       all:
         files: [{ expand: yes, cwd: 'assets/', src: [ '**/*.coffee' ] }]
 
@@ -144,17 +146,21 @@ module.exports = (grunt) ->
         files: ['assets/*.jade']
         tasks: ['jade']
 
-    connect:
-      server:
-        options:
-          port: 3000
-          middleware: (connect, options) ->
-            mw = [connect.logger 'dev']
-            mw.push (req, res) ->
-              index = path.resolve 'public', 'index.html'
-              route = path.resolve 'public', (url.parse req.url).pathname.replace /^\//, ''
-              fs.exists route, (exist) ->
-                fs.stat route, (err, stat) ->
-                  return fs.createReadStream(route).pipe(res) if exist and stat.isFile()
-                  return fs.createReadStream(index).pipe(res)
-            return mw
+    express:
+      appserve:
+        server: path.resolve __dirname, 'app.js'
+
+    # connect:
+    #   server:
+    #     options:
+    #       port: 3000
+    #       middleware: (connect, options) ->
+    #         mw = [connect.logger 'dev']
+    #         mw.push (req, res) ->
+    #           index = path.resolve 'public', 'index.html'
+    #           route = path.resolve 'public', (url.parse req.url).pathname.replace /^\//, ''
+    #           fs.exists route, (exist) ->
+    #             fs.stat route, (err, stat) ->
+    #               return fs.createReadStream(route).pipe(res) if exist and stat.isFile()
+    #               return fs.createReadStream(index).pipe(res)
+    #         return mw
