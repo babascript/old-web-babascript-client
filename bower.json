@@ -1,0 +1,28 @@
+{
+  "name": "client.babascript.org",
+  "version": "0.0.0",
+  "homepage": "http://babascript.org",
+  "authors": [
+    "TakumiBaba <s09704tb@gmail.com>"
+  ],
+  "description": "babascript client",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap-stylus": "~3.1.1",
+    "lodash": "~2.4.1",
+    "event_emitter": "~0.0.9",
+    "marionette": "1.8.8",
+    "sass-bootstrap": "~3.0.2",
+    "requirejs": "~2.1.14",
+    "moment": "~2.7.0",
+    "socket.io-client": "0.9.17"
+  }
+}
