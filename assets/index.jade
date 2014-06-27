@@ -3,9 +3,13 @@ html.no-js
   head
     meta(charset='utf-8')
     meta(http-equiv='X-UA-Compatible', content='IE=edge')
-    title BabascriptOrg
+    title client.babascript.org
     meta(name='description', content='')
     meta(name='viewport', content='width=device-width, initial-scale=1')
+    meta(name="apple-mobile-web-app-capable", content="yes")
+    meta(name="apple-mobile-web-app-status-bar-style",content="black-translucent")
+    meta(name="viewport", content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no")
+    link(href="/img/logo-120x120.png",sizes="120x120",rel="apple-touch-icon")
     // Place favicon.ico and apple-touch-icon.png in the root directory
     // build:css(.tmp) styles/main.css
     link(rel='stylesheet', href='css/main.css')
@@ -25,6 +29,7 @@ html.no-js
     #main
     #settings
     #login
+    #error
 
     script(type="text/template", id="header-template")
       a.header-title.navbar-brand.text-center babascript
@@ -35,8 +40,6 @@ html.no-js
         ul.dropdown-menu(role="menu")
           li: a.cancel-button キャンセル
           li: a.settings-button 設定
-          hr
-          li: a.logout ログアウト
 
     script(type="text/tepmlate", id="settings-template")
       .modal-content
@@ -47,13 +50,7 @@ html.no-js
           .form-group
             label(for="username") username
             input#username.form-control(placeholder="username...")
-          button.update.btn.btn-default(type="button") 更新する
-          .form-group
-            label(for="username") server address
-            input#username.form-control(placeholder="server address...")
-          button.update.btn.btn-default(type="button") 更新する
-        .modal-footer
-          button.logout.btn.btn-default(type="button") ログアウトする
+          button.update.btn.btn-default(type="button") 変更する
 
     script(type="text/tepmlate", id="login-template")
       .modal-content
@@ -116,21 +113,30 @@ html.no-js
       hr
       button.void.btn.btn-primary.btn-block(type="button") はい
 
-    script(type="text/template", id="void-template")
-      h3.text-center 命令内容は <%= key %> です。
-      p.description エラーの理由を文字列で入力するか、選択肢から選んでください
+    script(type="text/template", id="camera-template")
+      h3.text-center <%= key %>
+      p.description <%= description %>
       hr
-      form(role="form")
-        input.form-control.string-value(type="text", style="margin-bottom: 10px")
-      select.form-control
-        option 型がおかしい
-        option 選択肢からは選べない
-        option やりたくない
-      button.btn.btn-danger.btn-lg.btn-block(type="button") throw Error
-      hr
-      button.btn.btn-primary.btn-lg.btn-block(type="button") やはり値を返す
+      input.camera(type="file",accept="image/*;capture=camera",id="imageFile")
+
+    script(type="text/template", id="throw-error-template")
+      .modal-dialog
+        .modal-content
+          .modal-header
+            strong.text-center 命令内容は <%= key %> です。
+          .modal-body
+            p.description エラーの理由を文字列で入力するか、選択肢から選んでください
+            form(role="form")
+              input.form-control.string-value(type="text", style="margin-bottom: 10px")
+            select.setphrase.form-control
+              option 型がおかしい
+              option 選択肢からは選べない
+              option やりたくない
+          .modal-footer
+            button.return.btn.btn-primary.btn-lg.btn-block(type="button", data-dismiss="modal") やはり値を返す
+            button.cancel.btn.btn-danger.btn-lg.btn-block(type="button", data-dismiss="modal") キャンセル！
 
     // build:js scripts/main.js
     script(data-main='js/main', src='requirejs/require.js')
     script(src='cordova.js')
-    // endbuild
+    // endbuild  
