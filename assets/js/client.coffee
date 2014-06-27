@@ -14,6 +14,10 @@ define [
       @linda = new LindaSocketIOClient().connect socket
       @tasks = []
       @id = @getId()
+      @data = {}
+      @setFlag = true
+      @loadingModules = []
+      @modules = {}
       @linda.io.on "connect", =>
         @connect()
       setInterval =>
@@ -34,16 +38,11 @@ define [
 
     next: ->
       if @tasks.length > 0
-
         task = @tasks[0]
         format = task.format
         @emit "get_task", task
-        @group.write
-          baba: 'script'
-          type: 'report'
-          value: 'taked'
-          tuple: task
-      else
+      if !@taked
+        @taked = true
         @group.take {baba: "script", type: "eval"}, @getTask
 
     unicast: ->
@@ -74,13 +73,15 @@ define [
             if i is 0
               @emit "cancel_task", 'cancel'
               @next()
-    cancel: ->
+
+    cancel: (cause) ->
       task = @tasks.shift()
       cid = task.cid
       tuple =
         baba: "script"
         type: "cancel"
         cid: cid
+        value: cause
       @group.write tuple
       @next()
 
@@ -96,6 +97,8 @@ define [
         name: @name
         _task: task
       @group.write tuple
+      if task.type is 'eval'
+        @taked = false
       @next()
 
     watchAliveCheck: ->
@@ -104,8 +107,28 @@ define [
 
     getTask: (err, tuple)=>
       return err if err
+      console.log tuple
       @tasks.push tuple.data
       @emit "get_task", tuple.data
 
     getId: ->
       return "#{Math.random()*10000}_#{Math.random()*10000}"
+
+    set: (name, mod) =>
+      @loadingModules.push {name: name, body: mod}
+      @__set()
+
+    __set: =>
+      if @loadingModules.length is 0
+        @next()
+      else
+        if @setFlag
+          @setFlag = false
+          mod = @loadingModules.shift()
+          name = mod.name
+          mod.body.load @, =>
+            setTimeout =>
+              @modules[name] = mod
+              @setFlag = true
+              @__set()
+            , 100
