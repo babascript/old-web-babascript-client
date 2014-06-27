@@ -17,6 +17,7 @@ define [
     'main': '#main'
     'settings': '#settings'
     'login': '#login'
+    'error': '#error'
 
   App.API = 'http://linda.babascript.org'
 
@@ -25,6 +26,7 @@ define [
     App.main.close()
     App.settings.close()
     App.login.close()
+    App.error.close()
 
     header = new Views.Header()
     App.header.show header
