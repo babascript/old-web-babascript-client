@@ -34,4 +34,9 @@ define [
     login: ->
       App.login.show new Views.Login()
 
+    cancel: ->
+      console.log 'cancel'
+      App.main.close()
+      App.main.shpw new Views.ThrowErrorView()
+
   return Controller
