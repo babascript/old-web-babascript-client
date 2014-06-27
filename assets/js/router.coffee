@@ -9,6 +9,7 @@ define ['backbone', 'marionette'], (Backbone) ->
       "settings": "settings"
       ":tuplespace": "to"
       ":tuplespace/": "top"
+      ":tuplespace/cancel": "cancel"
       ":tuplespace/:view": "client"
 
   return Router

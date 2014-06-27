@@ -57,10 +57,12 @@ define [
     initialize: ->
 
     cancelTask: ->
-      app = require('app')
-      app.task = null
-      app.client.emit 'cancel_task'
-      require('app').client.cancel()
+      # キャンセルビュー出す
+      App = require('app')
+      return if !App.task?
+      # App.router.navigate "/#{App.username}/cancel"
+      require('app').error.close()
+      require('app').error.show new ThrowErrorView()
 
     settings: ->
       require('app').settings.show new SettingsView()
@@ -108,6 +110,7 @@ define [
   class LoginView extends Marionette.ItemView
     template: '#login-template'
     className: 'modal-dialog'
+    style: ''
     ui:
       username: 'input#username'
       password: 'input#password'
@@ -253,16 +256,66 @@ define [
     returnVoid: ->
       @returnValue 'true'
 
+  class CameraView extends BaseView
+    template: '#camera-template'
+    className: 'camera-page'
+    ui:
+      'camera': "input.camera"
+    events:
+      'change @ui.camera': 'change'
+    change: (e) ->
+      console.log e
+      f = e.target.files[0]
+      return if !f? or !f.type.match "image.*"
+      reader = new FileReader()
+      reader.onload = (e) =>
+        @returnValue e.target.result
+      reader.readAsBinaryString f
+
+
   class Task extends Backbone.Model
 
-  initialize: ->
-    @$el.html @template()
+    initialize: ->
+      @$el.html @template()
 
-  class ThrowErrorView extends BaseView
-    tempalte: '#throw-error-template'
-    className: 'throw-error-page'
-    # ui
 
+  class ThrowErrorView extends Marionette.ItemView
+    template: '#throw-error-template'
+    className: 'throw-error-page modal fade'
+    style: 'top: 100px'
+    ui:
+      cancel: 'button.cancel'
+      return: 'button.return'
+      input: 'input.string-value'
+      select: 'select.setphrase'
+    events:
+      'click @ui.cancel': 'cancel'
+      'click @ui.return': 'return'
+    initialize: ->
+      @model = new Backbone.Model()
+      console.log require('app').task
+      key = require('app').task.get "key"
+      @model.set "key", key
+      $(@el).css 'top', '30px'
+    onRender: ->
+      $(@el).modal('show')
+
+    onBeforeDestroy: ->
+      $(".throw-error-page").modal "hide"
+
+    cancel: ->
+      if @ui.input.val() isnt ""
+        cause = @ui.input.val()
+      else
+        cause = @ui.select.val()
+      app = require('app')
+      app.task = null
+      app.client.emit 'cancel_task'
+      app.client.cancel cause
+      app.error.close()
+
+    return: ->
+      require('app').error.close()
 
   return {
     Header: HeaderView
@@ -277,4 +330,5 @@ define [
     Task: Task
     Login: LoginView
     Settings: SettingsView
+    ThrowError: ThrowErrorView
   }
